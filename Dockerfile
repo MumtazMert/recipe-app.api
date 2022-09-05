@@ -19,6 +19,10 @@ ARG DEV=false
 #Creating Virtual env and specifing home path for our project
 RUN python -m venv /py&& \
     /py/bin/pip install --upgrade pip && \
+    #İnstalling postgresql client
+    apk add --update --no-cache postgresql-client && \
+    apk add --update --no-cache --virtual .tmp-build-deps \
+        build-base postgresql-dev musl-dev && \
     /py/bin/pip install -r /tmp/requirements.txt && \
     #Shell command 
     if [ $DEV = "true" ]; \
@@ -26,6 +30,8 @@ RUN python -m venv /py&& \
     fi && \
     #------------------------
     rm -rf /tmp && \
+    #We removed build deps.It keeps docker file lightweight and clean
+    apk del .tmp-build-deps && \
     adduser \
         --disabled-password \
         --no-create-home \
